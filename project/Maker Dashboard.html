@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Coinswap Maker · Dashboard</title>
+<link rel="stylesheet" href="app.css" />
+<style>
+  /* ────────── Card grid (Dashboard tab) ────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 14px;
+    min-height: 380px;
+    margin-left: 50px;
+  }
+
+  /* Combined balance card */
+  .big-card {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    position: relative;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .big-card::before {
+    content: "";
+    position: absolute;
+    top: 18px; bottom: 18px; left: 0;
+    width: 2px;
+    background: var(--orange);
+    border-radius: 0 2px 2px 0;
+  }
+  .big-top {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    align-items: stretch;
+    padding: 26px 28px 22px;
+  }
+  .big-top .vdiv { background: var(--border); margin: 6px 0; }
+  .metric {
+    display: flex; flex-direction: column; justify-content: center;
+    gap: 6px; padding: 0 18px;
+  }
+  .metric.left { padding-left: 4px; }
+  .metric .label {
+    font-family: var(--f-mono);
+    font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .metric .val {
+    font-family: var(--f-mono);
+    font-weight: 600; letter-spacing: -0.025em; line-height: 1.1;
+    color: var(--text); font-variant-numeric: tabular-nums;
+  }
+  .metric .val small {
+    font-size: 0.6em; font-weight: 500; margin-left: 4px;
+    color: var(--text-2); letter-spacing: 0.04em;
+  }
+  .metric.spend .val { font-size: 26px; color: var(--orange); }
+  .metric.swap .val { font-size: 26px; color: var(--blue); }
+  .metric .sub {
+    font-family: var(--f-sans); font-size: 12px;
+    color: var(--text-2); margin-top: 2px;
+  }
+  .metric .sub .delta {
+    color: var(--green); font-family: var(--f-mono); font-size: 11px;
+  }
+
+  .big-bottom {
+    border-top: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(232,80,2,0.10), rgba(255,84,27,0.02));
+    padding: 22px 28px 24px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .big-bottom .label {
+    font-family: var(--f-mono);
+    font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--text-2);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .big-bottom .label .lock-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 7px; border-radius: 999px;
+    background: rgba(255,181,71,0.10);
+    border: 1px solid rgba(255,181,71,0.28);
+    color: var(--amber); font-size: 9px; letter-spacing: 0.06em;
+  }
+  .big-bottom .val {
+    font-family: var(--f-mono);
+    font-size: 44px; font-weight: 700;
+    letter-spacing: -0.035em; line-height: 1.05;
+    color: var(--text); font-variant-numeric: tabular-nums;
+  }
+  .big-bottom .val small {
+    font-size: 0.4em; font-weight: 500; margin-left: 8px;
+    color: var(--text-2); letter-spacing: 0.04em;
+  }
+  .big-bottom .sub {
+    font-family: var(--f-sans); font-size: 13px;
+    color: var(--text-2); margin-top: 4px;
+  }
+  .big-bottom .share {
+    margin-top: 14px; display: flex; align-items: center; gap: 14px;
+  }
+  .big-bottom .share .legend {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--f-mono); font-size: 10.5px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .big-bottom .share .legend .swatch { width: 8px; height: 8px; border-radius: 2px; }
+  .big-bottom .share .legend.s1 .swatch { background: var(--orange); }
+  .big-bottom .share .legend.s2 .swatch { background: var(--blue); }
+  .big-bottom .share .legend.s3 .swatch { background: var(--amber); }
+  .big-bottom .bar {
+    margin-top: 12px; width: 100%; height: 6px;
+    background: var(--surface-3); border-radius: 999px;
+    overflow: hidden; display: flex;
+  }
+  .big-bottom .bar > span { height: 100%; display: block; }
+  .big-bottom .bar .b1 { background: var(--orange); }
+  .big-bottom .bar .b2 { background: var(--blue); }
+  .big-bottom .bar .b3 { background: var(--amber); }
+
+  /* Stat cards */
+  .bcard {
+    position: relative;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px 18px;
+    display: flex; flex-direction: column; gap: 6px;
+    overflow: hidden;
+  }
+  .bcard::before {
+    content: ""; position: absolute;
+    top: 16px; bottom: 16px; left: 0; width: 2px;
+    border-radius: 0 2px 2px 0;
+  }
+  .bcard.amber::before { background: var(--amber); }
+  .bcard.orange::before { background: var(--orange); }
+  .bcard.white::before { background: var(--text); }
+  .bcard.green::before { background: var(--green); }
+  .bcard .label {
+    font-family: var(--f-mono);
+    font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--text-3);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .bcard .label .pill {
+    padding: 2px 7px; border-radius: 999px;
+    font-family: var(--f-mono); font-size: 9px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .bcard .label .pill.live {
+    background: rgba(47,191,113,0.10);
+    border: 1px solid rgba(47,191,113,0.28);
+    color: var(--green);
+  }
+  .bcard .label .pill.idle {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--text-3);
+  }
+  .bcard .val {
+    font-family: var(--f-mono);
+    font-size: 24px; font-weight: 600;
+    letter-spacing: -0.025em; line-height: 1.1;
+    color: var(--text); font-variant-numeric: tabular-nums;
+    margin-top: 4px;
+  }
+  .bcard .val small {
+    font-size: 0.55em; font-weight: 500; margin-left: 4px;
+    color: var(--text-2); letter-spacing: 0.04em;
+  }
+  .bcard.amber .val { color: var(--amber); }
+  .bcard.orange .val { color: var(--orange); }
+  .bcard.white .val { color: var(--text); }
+  .bcard.green .val { color: var(--green); }
+  .bcard .sub { font-size: 12.5px; color: var(--text-2); }
+  .bcard .meta {
+    margin-top: auto; padding-top: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--f-mono); font-size: 10.5px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .bcard .meta .arrow { color: var(--text-3); transition: color var(--t-base); }
+  .bcard:hover .meta .arrow { color: var(--text); }
+  .bcard .breakdown {
+    margin-top: 8px; display: flex; flex-direction: column; gap: 4px;
+    font-family: var(--f-mono); font-size: 11px; color: var(--text-2);
+  }
+  .bcard .breakdown .row { display: flex; justify-content: space-between; }
+  .bcard .breakdown .row .k {
+    color: var(--text-3); letter-spacing: 0.04em;
+    text-transform: uppercase; font-size: 10px;
+  }
+  .bcard .breakdown .row .v { font-variant-numeric: tabular-nums; }
+
+  /* Tab placeholder content (non-Dashboard tabs that stay on this page) */
+  .placeholder {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 80px 24px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    min-height: 380px; gap: 10px;
+    margin-left: 50px;
+  }
+  .placeholder .ic {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--text-3); margin-bottom: 4px;
+  }
+  .placeholder h3 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .placeholder p { margin: 0; color: var(--text-2); max-width: 320px; font-size: 12.5px; }
+
+  /* ────────── Swap History (Swap Reports) ────────── */
+  .history {
+    margin-left: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .history-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .history-head .htitle h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+  .history-head .htitle p {
+    margin: 5px 0 0;
+    font-size: 12.5px;
+    color: var(--text-2);
+  }
+  .history-head .hcount {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  .history-head .hcount b {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Filter bar */
+  .history-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .fchip {
+    appearance: none;
+    height: 30px;
+    padding: 0 13px;
+    border-radius: 999px;
+    background: transparent;
+    border: 1px solid var(--border);
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: background var(--t-base), color var(--t-base), border-color var(--t-base);
+  }
+  .fchip:hover { color: var(--text); border-color: var(--border-strong); }
+  .fchip.active {
+    background: rgba(232,80,2,0.12);
+    border-color: rgba(232,80,2,0.40);
+    color: var(--orange);
+  }
+  .fchip .n {
+    font-size: 9.5px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    color: var(--text-3);
+  }
+  .fchip.active .n { background: rgba(232,80,2,0.18); color: var(--orange); }
+  .history-filters .sort-btn { margin-left: auto; }
+
+  /* Report card */
+  .report {
+    position: relative;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color var(--t-base), transform var(--t-base);
+  }
+  .report::before {
+    content: "";
+    position: absolute;
+    top: 20px; bottom: 20px; left: 0;
+    width: 2px;
+    border-radius: 0 2px 2px 0;
+  }
+  .report.ok::before { background: var(--green); }
+  .report.recovered::before { background: var(--amber); }
+  .report:hover { border-color: var(--border-strong); }
+
+  .report-main {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px 32px;
+    align-items: start;
+    padding: 22px 26px 20px;
+  }
+
+  /* left identity block */
+  .report-id .tags {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .rtag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 22px;
+    padding: 0 9px;
+    border-radius: 999px;
+    font-family: var(--f-mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .rtag.status-ok {
+    background: rgba(47,191,113,0.12);
+    border: 1px solid rgba(47,191,113,0.30);
+    color: var(--green);
+  }
+  .rtag.status-recovered {
+    background: rgba(255,181,71,0.12);
+    border: 1px solid rgba(255,181,71,0.30);
+    color: var(--amber);
+  }
+  .rtag.status-ok .gdot { width: 5px; height: 5px; border-radius: 999px; background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .rtag.status-recovered .gdot { width: 5px; height: 5px; border-radius: 999px; background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .rtag.flat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--text-3);
+    font-weight: 500;
+  }
+  .report-id .swap-name {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .report-id .swap-name h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .report-id .swap-name .hash {
+    font-family: var(--f-mono);
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    color: var(--orange);
+    cursor: copy;
+  }
+  .report-id .swap-name .hash:hover { color: var(--orange-hover); text-decoration: underline; }
+  .report-id .completed {
+    margin-top: 7px;
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .report-id .completed .c-label {
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 10px;
+    margin-right: 6px;
+  }
+
+  /* right metrics */
+  .report-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    gap: 8px 28px;
+    text-align: left;
+  }
+  .rmetric { display: flex; flex-direction: column; gap: 5px; }
+  .rmetric .k {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .rmetric .v {
+    font-family: var(--f-mono);
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .rmetric.in .v { color: var(--orange); }
+  .rmetric.out .v { color: var(--text); }
+  .rmetric.fee .v { color: var(--green); }
+  .rmetric .v small {
+    font-size: 0.62em;
+    font-weight: 500;
+    color: var(--text-3);
+    margin-left: 3px;
+    letter-spacing: 0.02em;
+  }
+
+  /* settlement detail row */
+  .report-detail {
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 22px 32px;
+    padding: 18px 26px 22px;
+  }
+  .detail-col { display: flex; flex-direction: column; gap: 16px; }
+  .dfield .k {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 6px;
+  }
+  .dfield .tx {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--text-2);
+    letter-spacing: -0.01em;
+    word-break: break-all;
+    cursor: copy;
+    transition: color var(--t-base);
+    line-height: 1.5;
+  }
+  .dfield .tx:hover { color: var(--text); }
+  .dfield .val {
+    font-family: var(--f-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .dfield .val small {
+    font-size: 0.7em; font-weight: 500; color: var(--text-3); margin-left: 4px;
+  }
+
+  /* empty state when a filter yields nothing */
+  .history-empty {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+    background: var(--surface-2);
+    border: 1px dashed var(--border-strong);
+    border-radius: 14px;
+    color: var(--text-2);
+    font-size: 12.5px;
+  }
+  .history-empty.show { display: block; }
+
+  @media (max-width: 900px) {
+    .report-main { grid-template-columns: 1fr; }
+    .report-metrics { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .report-detail { grid-template-columns: 1fr; }
+  }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .big-card { grid-column: 1 / -1; grid-row: auto; }
+  }
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+    .big-top { grid-template-columns: 1fr; }
+    .big-top .vdiv { display: none; }
+    .page-head { grid-template-columns: auto 1fr; }
+    .head-actions { grid-column: 1 / -1; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body data-flow="wallet" data-screen-label="01 Maker Dashboard">
+
+<div class="app">
+  <div class="shell">
+
+    <!-- Titlebar -->
+    <div class="titlebar" aria-hidden="true">
+      <div class="lights">
+        <span class="light r"></span>
+        <span class="light y"></span>
+        <span class="light g"></span>
+      </div>
+      <div class="title-center">Coinswap Maker Dashboard</div>
+      <div class="net-badge"><span class="dot"></span>Signet</div>
+    </div>
+
+    <main>
+
+      <!-- Page head -->
+      <div class="page-head">
+        <button class="back-btn" title="Back to maker list" aria-label="Back to maker list">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="title-block">
+          <h1>MArk Dcada</h1>
+          <div class="addr" id="torAddr" title="bq2xdcodfvgwe2tn4selqz5znjgxydabc.onion:6106">bq2xdcodfvgwe2tn4selqz5……znjgxyd.onion:6106</div>
+        </div>
+        <div class="head-actions">
+          <button class="btn ghost" id="syncBtn">
+            <svg class="sync-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            <span class="lbl">Sync Wallet</span>
+          </button>
+          <button class="btn danger-ghost" id="stopBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+            </svg>
+            <span class="lbl">Stop</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <nav class="tabs" role="tablist" aria-label="Maker sections">
+        <button class="tab active" role="tab" aria-selected="true" data-tab="dashboard">Dashboard</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="wallet">Wallet</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="logs">Logs</button>
+        <a class="tab" role="tab" href="Settings.html">Settings</a>
+      </nav>
+
+      <!-- Dashboard panel -->
+      <section class="grid" data-panel="dashboard" role="tabpanel">
+
+        <article class="big-card">
+          <div class="big-top">
+            <div class="metric spend left">
+              <span class="label">Spendable</span>
+              <span class="val">0.50000000<small>BTC</small></span>
+              <span class="sub">$47,500.00 <span class="delta">+0.21%</span></span>
+            </div>
+            <div class="vdiv"></div>
+            <div class="metric swap">
+              <span class="label">Swappable</span>
+              <span class="val">0.42000000<small>BTC</small></span>
+              <span class="sub">$39,900.00 — eligible for swap</span>
+            </div>
+          </div>
+          <div class="big-bottom">
+            <div class="label">
+              Total Balance
+              <span class="lock-pill">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                0.10 LOCKED
+              </span>
+            </div>
+            <div class="val">0.62500000<small>BTC</small></div>
+            <div class="sub">$59,375.00 · across all wallets · last sync 2&nbsp;min ago</div>
+            <div class="bar" aria-hidden="true">
+              <span class="b1" style="width: 80%"></span>
+              <span class="b2" style="width: 4%"></span>
+              <span class="b3" style="width: 16%"></span>
+            </div>
+            <div class="share">
+              <div class="legend s1"><span class="swatch"></span>Regular 80%</div>
+              <div class="legend s2"><span class="swatch"></span>Swap 4%</div>
+              <div class="legend s3"><span class="swatch"></span>Fidelity 16%</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="bcard amber">
+          <div class="label">Contract<span class="pill idle">Idle</span></div>
+          <div class="val">0.00000000<small>BTC</small></div>
+          <div class="sub">$0.00 — no active contracts</div>
+          <div class="meta"><span>Live HTLCs · 0</span><span class="arrow">→</span></div>
+        </article>
+
+        <article class="bcard white">
+          <div class="label">Fidelity Bond<span class="pill idle">Locked</span></div>
+          <div class="val">0.10000000<small>BTC</small></div>
+          <div class="sub">$9,500.00 — matures in 86 days</div>
+          <div class="meta"><span>Bond strength · 0.18</span><span class="arrow">→</span></div>
+        </article>
+
+        <article class="bcard white">
+          <div class="label">Fee Summary<span class="pill live">Live</span></div>
+          <div class="val">1,000<small>SATS</small></div>
+          <div class="breakdown">
+            <div class="row"><span class="k">Amount fee</span><span class="v">2.50%</span></div>
+            <div class="row"><span class="k">Time fee</span><span class="v">0.10%</span></div>
+            <div class="row"><span class="k">Base</span><span class="v">500 sats</span></div>
+          </div>
+        </article>
+
+        <article class="bcard green">
+          <div class="label">Net Earning<span class="pill live">+12 swaps</span></div>
+          <div class="val">0.02500000<small>BTC</small></div>
+          <div class="sub">$2,375.00 — across 12 successful swaps</div>
+          <div class="meta"><span>Last earned · 4h ago</span><span class="arrow">→</span></div>
+        </article>
+
+      </section>
+
+      <!-- Placeholder panels for other tabs -->
+      <section class="placeholder" data-panel="wallet" role="tabpanel" hidden>
+        <div class="ic">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"></path>
+            <path d="M4 6v12a2 2 0 0 0 2 2h14v-4"></path>
+            <path d="M18 12a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h4v-4Z"></path>
+          </svg>
+        </div>
+        <h3>Wallet</h3>
+        <p>Regular, Swap, Contract, Fidelity and Spendable balances with UTXO detail.</p>
+      </section>
+      <section class="history" data-panel="dashboard" role="tabpanel">
+        <div class="history-head">
+          <div class="htitle">
+            <h2>Swap Reports</h2>
+            <p>Detailed maker-side reports for completed or recovered swaps.</p>
+          </div>
+          <div class="hcount"><b id="hCount">5</b> reports</div>
+        </div>
+        <div class="history-filters">
+          <button class="fchip active" data-filter="all">All <span class="n" data-n="all">5</span></button>
+          <button class="fchip" data-filter="ok">Success <span class="n" data-n="ok">4</span></button>
+          <button class="fchip" data-filter="recovered">Recovered <span class="n" data-n="recovered">1</span></button>
+          <button class="btn ghost sm sort-btn" id="sortBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+            <span class="lbl">Newest first</span>
+          </button>
+        </div>
+        <div id="reportList" class="report-list" style="display:flex;flex-direction:column;gap:16px;"></div>
+        <div class="history-empty" id="historyEmpty">No swaps match this filter.</div>
+      </section>
+      <section class="placeholder" data-panel="logs" role="tabpanel" hidden>
+        <div class="ic">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="9" y1="13" x2="15" y2="13"></line>
+            <line x1="9" y1="17" x2="15" y2="17"></line>
+          </svg>
+        </div>
+        <h3>Logs</h3>
+        <p>Live RPC and routing logs streaming from this maker instance.</p>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span class="dot"></span>
+  <span class="msg">Wallet synced</span>
+</div>
+
+<script>
+(function () {
+  const TABS = document.querySelectorAll('.tab');
+  const PANELS = document.querySelectorAll('[data-panel]');
+  const TAB_KEY = 'coinswap:maker:activeTab';
+
+  function activate(name) {
+    TABS.forEach(t => {
+      // Skip <a> tabs (they navigate away)
+      if (t.tagName !== 'BUTTON') return;
+      const on = t.dataset.tab === name;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    PANELS.forEach(p => { p.hidden = p.dataset.panel !== name; });
+    try { localStorage.setItem(TAB_KEY, name); } catch (e) {}
+  }
+
+  TABS.forEach(t => {
+    if (t.tagName !== 'BUTTON') return;
+    t.addEventListener('click', () => activate(t.dataset.tab));
+  });
+
+  try {
+    const saved = localStorage.getItem(TAB_KEY);
+    if (saved && [...TABS].some(t => t.tagName === 'BUTTON' && t.dataset.tab === saved)) activate(saved);
+  } catch (e) {}
+
+  const toast = document.getElementById('toast');
+  function showToast(msg, variant) {
+    toast.classList.remove('warn', 'err');
+    if (variant === 'warn') toast.classList.add('warn');
+    if (variant === 'err') toast.classList.add('err');
+    toast.querySelector('.msg').textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+
+  const syncBtn = document.getElementById('syncBtn');
+  let syncing = false;
+  syncBtn.addEventListener('click', () => {
+    if (syncing) return;
+    syncing = true;
+    syncBtn.classList.add('spinning');
+    syncBtn.querySelector('.lbl').textContent = 'Syncing…';
+    setTimeout(() => {
+      syncing = false;
+      syncBtn.classList.remove('spinning');
+      syncBtn.querySelector('.lbl').textContent = 'Sync Wallet';
+      showToast('Wallet synced');
+    }, 1600);
+  });
+
+  const stopBtn = document.getElementById('stopBtn');
+  const STATUS_KEY = 'coinswap:maker:status';
+  let running = (function () {
+    try { return localStorage.getItem(STATUS_KEY) !== 'stopped'; } catch (e) { return true; }
+  })();
+  function renderStatus() {
+    if (running) {
+      stopBtn.classList.add('danger-ghost');
+      stopBtn.classList.remove('start-ghost');
+      stopBtn.querySelector('.lbl').textContent = 'Stop';
+      stopBtn.querySelector('svg').outerHTML =
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>';
+    } else {
+      stopBtn.classList.remove('danger-ghost');
+      stopBtn.classList.add('start-ghost');
+      stopBtn.querySelector('.lbl').textContent = 'Start';
+      stopBtn.querySelector('svg').outerHTML =
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+    }
+  }
+  stopBtn.addEventListener('click', () => {
+    running = !running;
+    try { localStorage.setItem(STATUS_KEY, running ? 'running' : 'stopped'); } catch (e) {}
+    renderStatus();
+    showToast(running ? 'Maker started' : 'Maker stopped', running ? '' : 'warn');
+  });
+  renderStatus();
+
+  const torAddr = document.getElementById('torAddr');
+  torAddr.addEventListener('click', () => {
+    const full = torAddr.getAttribute('title') || torAddr.textContent;
+    navigator.clipboard && navigator.clipboard.writeText(full).then(
+      () => showToast('Tor address copied'),
+      () => showToast('Copy failed', 'err')
+    );
+  });
+
+  /* ────────── Swap History ────────── */
+  const SWAPS = [
+    {
+      id: '664a2b67464fe685', status: 'ok',
+      completed: '28/05/2026, 00:30:17', started: '28/05/2026, 00:30:16',
+      incoming: '0.00048987', outgoing: '0.00047974', fee: '+0.00001013',
+      duration: '1.4s', timelock: 8210,
+      txIn: '3d875c785836854584997d1257f3900e8776bf491023195b9302586187424ff2',
+      txOut: 'ef306c025995ec0327f07eaa06f2c0938c9cb45b1e301692d54a6d64a35cd8c1',
+    },
+    {
+      id: '79f0fbbf1c4a6567', status: 'ok',
+      completed: '27/05/2026, 18:21:19', started: '27/05/2026, 18:21:18',
+      incoming: '0.00548883', outgoing: '0.00547745', fee: '+0.00001138',
+      duration: '1.1s', timelock: 8151,
+      txIn: '84f04a80508390a00a8bf2cd0251df771d739be6a3fe3193d1148ae4c5c39e77',
+      txOut: '753850e2eac4103e50cc77c58c6a9ca6e6da51ea454653c19ad408adaa495a76',
+    },
+    {
+      id: 'c1d9e4f2a07b3358', status: 'ok',
+      completed: '26/05/2026, 09:14:02', started: '26/05/2026, 09:14:00',
+      incoming: '0.00210440', outgoing: '0.00209102', fee: '+0.00001338',
+      duration: '2.0s', timelock: 8098,
+      txIn: 'a93b6610c4e7f8521d0c4419b7f2e3a5d6c81790f4e2b3a1c0987654321fedcba',
+      txOut: '0f1e2d3c4b5a69788796a5b4c3d2e1f00112233445566778899aabbccddeeff0',
+    },
+    {
+      id: 'b48a01ce9d2f7710', status: 'recovered',
+      completed: '24/05/2026, 22:47:51', started: '24/05/2026, 21:30:11',
+      incoming: '0.00120000', outgoing: '0.00120000', fee: '0.00000000',
+      duration: '77m', timelock: 7960,
+      txIn: '5c4b3a2918077665544332211000ffeeddccbbaa99887766554433221100abcd',
+      txOut: 'recovered via timelock — counterparty aborted before settlement',
+      recovered: true,
+    },
+    {
+      id: 'e7720fac5b91d834', status: 'ok',
+      completed: '23/05/2026, 11:05:38', started: '23/05/2026, 11:05:36',
+      incoming: '0.00301750', outgoing: '0.00300489', fee: '+0.00001261',
+      duration: '1.7s', timelock: 7884,
+      txIn: '11aa22bb33cc44dd55ee66ff77889900aabbccddeeff00112233445566778899',
+      txOut: '99887766554433221100ffeeddccbbaa00112233445566778899aabbccddeeff',
+    },
+  ];
+
+  const STATUS_META = {
+    ok: { label: 'Success', cls: 'status-ok' },
+    recovered: { label: 'Recovered', cls: 'status-recovered' },
+  };
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
+
+  function reportCard(s) {
+    const meta = STATUS_META[s.status];
+    const outTx = s.recovered
+      ? `<div class="tx" style="cursor:default;color:var(--amber)">${esc(s.txOut)}</div>`
+      : `<div class="tx" data-copy="${esc(s.txOut)}" title="Click to copy">${esc(s.txOut)}</div>`;
+    return `
+      <article class="report ${s.status === 'ok' ? 'ok' : 'recovered'}" data-status="${s.status}" data-ts="${s.started}">
+        <div class="report-main">
+          <div class="report-id">
+            <div class="tags">
+              <span class="rtag ${meta.cls}"><span class="gdot"></span>${meta.label}</span>
+              <span class="rtag flat">maker</span>
+              <span class="rtag flat">signet</span>
+            </div>
+            <div class="swap-name">
+              <h3>Swap</h3>
+              <span class="hash" data-copy="${esc(s.id)}" title="Click to copy swap id">${esc(s.id)}</span>
+            </div>
+            <div class="completed"><span class="c-label">${s.recovered ? 'Recovered' : 'Completed'}</span>${esc(s.completed)}</div>
+          </div>
+          <div class="report-metrics">
+            <div class="rmetric in"><span class="k">Incoming</span><span class="v">${esc(s.incoming)}<small>BTC</small></span></div>
+            <div class="rmetric out"><span class="k">Outgoing</span><span class="v">${esc(s.outgoing)}<small>BTC</small></span></div>
+            <div class="rmetric fee"><span class="k">Fee</span><span class="v">${esc(s.fee)}<small>BTC</small></span></div>
+            <div class="rmetric"><span class="k">Duration</span><span class="v">${esc(s.duration)}</span></div>
+          </div>
+        </div>
+        <div class="report-detail">
+          <div class="detail-col">
+            <div class="dfield">
+              <div class="k">Incoming contract tx</div>
+              <div class="tx" data-copy="${esc(s.txIn)}" title="Click to copy">${esc(s.txIn)}</div>
+            </div>
+            <div class="dfield">
+              <div class="k">Outgoing contract tx</div>
+              ${outTx}
+            </div>
+          </div>
+          <div class="detail-col">
+            <div class="dfield">
+              <div class="k">Timelock</div>
+              <div class="val">${s.timelock.toLocaleString()}<small>blocks</small></div>
+            </div>
+            <div class="dfield">
+              <div class="k">Started</div>
+              <div class="val" style="font-weight:500;color:var(--text-2)">${esc(s.started)}</div>
+            </div>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  const reportList = document.getElementById('reportList');
+  const historyEmpty = document.getElementById('historyEmpty');
+  const hCount = document.getElementById('hCount');
+  const sortBtn = document.getElementById('sortBtn');
+  let activeFilter = 'all';
+  let newestFirst = true;
+
+  function tsKey(s) { // 'DD/MM/YYYY, HH:MM:SS' -> sortable number
+    const m = s.match(/(\d{2})\/(\d{2})\/(\d{4}),\s*(\d{2}):(\d{2}):(\d{2})/);
+    return m ? +(m[3] + m[2] + m[1] + m[4] + m[5] + m[6]) : 0;
+  }
+
+  function renderReports() {
+    let rows = SWAPS.slice().sort((a, b) =>
+      newestFirst ? tsKey(b.started) - tsKey(a.started) : tsKey(a.started) - tsKey(b.started));
+    if (activeFilter !== 'all') rows = rows.filter(s => s.status === activeFilter);
+    reportList.innerHTML = rows.map(reportCard).join('');
+    const visible = rows.length;
+    hCount.textContent = visible;
+    historyEmpty.classList.toggle('show', visible === 0);
+  }
+
+  // filter counts
+  document.querySelector('[data-n="all"]').textContent = SWAPS.length;
+  document.querySelector('[data-n="ok"]').textContent = SWAPS.filter(s => s.status === 'ok').length;
+  document.querySelector('[data-n="recovered"]').textContent = SWAPS.filter(s => s.status === 'recovered').length;
+
+  document.querySelectorAll('.fchip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.fchip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.dataset.filter;
+      renderReports();
+    });
+  });
+
+  sortBtn.addEventListener('click', () => {
+    newestFirst = !newestFirst;
+    sortBtn.querySelector('.lbl').textContent = newestFirst ? 'Newest first' : 'Oldest first';
+    sortBtn.querySelector('svg').style.transform = newestFirst ? '' : 'scaleY(-1)';
+    renderReports();
+  });
+
+  // copy on tx / id click (event delegation)
+  reportList.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-copy]');
+    if (!el) return;
+    const txt = el.getAttribute('data-copy');
+    navigator.clipboard && navigator.clipboard.writeText(txt).then(
+      () => showToast(txt.length > 24 ? 'Transaction id copied' : 'Swap id copied'),
+      () => showToast('Copy failed', 'err')
+    );
+  });
+
+  renderReports();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Coinswap Maker · Settings</title>
+<link rel="stylesheet" href="app.css" />
+<style>
+  /* ═══════════════════════════════════════════════════════════
+     Settings — page-specific styles
+     ═══════════════════════════════════════════════════════════ */
+
+  .settings-eyebrow {
+    margin: 6px 0 -8px 50px;
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .settings-wrap {
+    margin-left: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .settings-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  /* ────────── Card chrome ────────── */
+  .card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .card-head h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .card-head .head-meta {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .card-body {
+    padding: 20px;
+  }
+
+  /* ────────── Sub-section (inside big combined card) ────────── */
+  .subsection { padding: 22px 22px; }
+  .subsection + .subsection { border-top: 1px solid var(--border); }
+  .test-btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .btn .ic { transition: transform var(--t-base); }
+  .btn.spinning .ic { animation: spin 0.9s linear infinite; }
+  .sub-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+  .sub-title .pip {
+    width: 6px; height: 6px;
+    border-radius: 999px;
+    background: var(--orange);
+    box-shadow: 0 0 8px var(--orange);
+  }
+  .sub-title .pip.blue { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
+  .sub-title .pip.purple { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
+  .sub-title .pip.amber { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+  .sub-title .pip.green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+  /* ────────── Field grid ────────── */
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 18px;
+  }
+  .field-grid .span-2 { grid-column: 1 / -1; }
+  .field-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid.cols-3 .span-3 { grid-column: 1 / -1; }
+
+  /* ────────── Field ────────── */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .field > label {
+    font-family: var(--f-sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: -0.005em;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+  .field > label .req {
+    color: var(--orange);
+    font-family: var(--f-mono);
+  }
+  .field > label .right {
+    margin-left: auto;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-3);
+  }
+
+  .input-wrap {
+    position: relative;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color var(--t-base);
+    display: flex;
+    align-items: center;
+  }
+  .input-wrap:focus-within {
+    border-color: var(--border-strong);
+  }
+  .input-wrap input,
+  .input-wrap textarea {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--text);
+    font-family: var(--f-mono);
+    font-size: 13px;
+    padding: 11px 13px;
+    letter-spacing: -0.005em;
+  }
+  .input-wrap input::placeholder { color: var(--text-3); }
+  .input-wrap .eye-btn {
+    background: transparent;
+    border: 0;
+    color: var(--text-3);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    margin-right: 4px;
+    transition: color var(--t-base), background var(--t-base);
+  }
+  .input-wrap .eye-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .input-wrap .unit {
+    padding: 0 13px 0 0;
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    pointer-events: none;
+  }
+
+  .hint {
+    margin: 0;
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    color: var(--text-3);
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+  .hint code {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* Toggle field — locked-on display */
+  .toggle-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 14px;
+    gap: 12px;
+  }
+  .toggle-field .toggle-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .toggle-field .toggle-meta .t-label {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+  .toggle-field .toggle-meta .t-sub {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    color: var(--text-3);
+  }
+  .toggle-field .always-on {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(47,191,113,0.10);
+    border: 1px solid rgba(47,191,113,0.28);
+    font-family: var(--f-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--green);
+  }
+  .toggle-field .always-on .dot {
+    width: 6px; height: 6px;
+    border-radius: 999px;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
+
+  /* Code block */
+  .code-block {
+    margin: 0;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 13px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.55;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* Banners */
+  .banner {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    line-height: 1.5;
+    letter-spacing: 0.005em;
+  }
+  .banner .ic {
+    flex: 0 0 14px;
+    width: 14px; height: 14px;
+    margin-top: 1px;
+  }
+  .banner.warn {
+    background: rgba(255,181,71,0.07);
+    border: 1px solid rgba(255,181,71,0.28);
+    color: var(--amber);
+  }
+  .banner.info {
+    background: rgba(91,141,239,0.07);
+    border: 1px solid rgba(91,141,239,0.28);
+    color: var(--blue);
+  }
+  .banner strong {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    margin-right: 4px;
+  }
+  .banner code {
+    background: rgba(255,255,255,0.06);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: var(--f-mono);
+    color: inherit;
+  }
+
+  /* ────────── Test Connection card ────────── */
+  .test-card .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .conn-panel {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .conn-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .conn-status .label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--text-2);
+    letter-spacing: 0.04em;
+  }
+  .conn-status .label .dot {
+    width: 7px; height: 7px;
+    border-radius: 999px;
+    background: var(--text-3);
+  }
+  .conn-status.ok .label .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .conn-status.err .label .dot { background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .conn-status .pill {
+    font-family: var(--f-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .conn-status.ok .pill { color: var(--green); }
+  .conn-status.err .pill { color: var(--red); }
+
+  .conn-rows {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 18px;
+  }
+  .conn-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+  }
+  .conn-row .k {
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+  }
+  .conn-row .v {
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    transition: color var(--t-base);
+  }
+  .conn-rows.filled .v { color: var(--text); }
+
+  .test-desc {
+    font-size: 12.5px;
+    color: var(--text-2);
+    margin: 0;
+  }
+  .test-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  .test-actions .btn { height: 36px; }
+
+  /* ────────── Network Ports card ────────── */
+  .ports-desc {
+    font-size: 12.5px;
+    color: var(--text-2);
+    margin: 0 0 16px;
+  }
+
+  /* ────────── ZMQ subsection layout ────────── */
+  .zmq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 18px;
+  }
+  .zmq-grid .copy-row {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  /* ────────── Footer (Save bar) ────────── */
+  .save-bar {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .save-bar .save-note {
+    flex: 1 1 360px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+  }
+  .save-bar .save-note code {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* ────────── Danger zone ────────── */
+  .danger {
+    background: var(--surface-2);
+    border: 1px solid rgba(255,77,90,0.20);
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .danger::before {
+    content: "";
+    position: absolute;
+    top: 16px; bottom: 16px; left: 0; width: 2px;
+    background: var(--red);
+    border-radius: 0 2px 2px 0;
+  }
+  .danger .danger-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .danger .danger-meta h2 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--red);
+    letter-spacing: -0.005em;
+  }
+  .danger .danger-meta p {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--text-2);
+  }
+
+  /* ────────── Responsive ────────── */
+  @media (max-width: 1100px) {
+    .settings-row { grid-template-columns: 1fr; }
+    .field-grid.cols-3 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 720px) {
+    .field-grid,
+    .conn-rows,
+    .zmq-grid { grid-template-columns: 1fr; }
+    .field-grid.cols-3 { grid-template-columns: 1fr; }
+    .settings-wrap,
+    .settings-eyebrow { margin-left: 0; }
+    .page-head { grid-template-columns: auto 1fr; }
+    .head-actions { grid-column: 1 / -1; flex-wrap: wrap; }
+    .danger { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body data-flow="wallet" data-screen-label="05 Maker Settings">
+
+<div class="app">
+  <div class="shell">
+
+    <!-- Titlebar -->
+    <div class="titlebar" aria-hidden="true">
+      <div class="lights">
+        <span class="light r"></span>
+        <span class="light y"></span>
+        <span class="light g"></span>
+      </div>
+      <div class="title-center">Coinswap Maker Dashboard</div>
+      <div class="net-badge"><span class="dot"></span>Signet</div>
+    </div>
+
+    <main>
+
+      <!-- Page head -->
+      <div class="page-head">
+        <button class="back-btn" title="Back to maker list" aria-label="Back to maker list">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="title-block">
+          <h1>MArk Dcada</h1>
+          <div class="addr" id="torAddr" title="bq2xdcodfvgwe2tn4selqz5znjgxydabc.onion:6106">bq2xdcodfvgwe2tn4selqz5……znjgxyd.onion:6106</div>
+        </div>
+        <div class="head-actions">
+          <button class="btn ghost" id="syncBtn">
+            <svg class="sync-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            <span class="lbl">Sync Wallet</span>
+          </button>
+          <button class="btn danger-ghost" id="stopBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+            </svg>
+            <span class="lbl">Stop</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <nav class="tabs" role="tablist" aria-label="Maker sections">
+        <a class="tab" role="tab" href="Maker Dashboard.html">Dashboard</a>
+        <a class="tab" role="tab" href="Maker Dashboard.html">Wallet</a>
+        <a class="tab" role="tab" href="Maker Dashboard.html">Swap History</a>
+        <a class="tab" role="tab" href="Maker Dashboard.html">Logs</a>
+        <a class="tab active" role="tab" aria-selected="true" href="Settings.html">Settings</a>
+      </nav>
+
+      <!-- Settings eyebrow (per wireframe) -->
+      <div class="settings-eyebrow">Settings · maker instance config</div>
+
+      <div class="settings-wrap">
+
+        <!-- ───────── Big combined card: RPC + ZMQ + Tor ───────── -->
+        <section class="card" aria-labelledby="combinedHead">
+          <div class="card-head">
+            <h2 id="combinedHead">Bitcoin Core RPC, ZMQ &amp; Tor Configuration</h2>
+            <span class="head-meta">Edit · last saved 2 d ago</span>
+          </div>
+
+          <!-- Bitcoin Core RPC -->
+          <div class="subsection">
+            <div class="sub-title"><span class="pip"></span>Bitcoin Core RPC</div>
+            <div class="field-grid">
+              <div class="field">
+                <label>RPC Endpoint <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <input type="text" value="127.0.0.1:38332" />
+                </div>
+                <p class="hint">Default ports — <code>8332</code> mainnet · <code>18332</code> testnet · <code>38332</code> signet</p>
+              </div>
+
+              <div class="field">
+                <label>Data Directory</label>
+                <div class="input-wrap">
+                  <input type="text" value="/home/appuser/.coinswap/MArk Dcada" />
+                </div>
+                <p class="hint">Defaults to <code>~/.coinswap/&lt;id&gt;</code></p>
+              </div>
+
+              <div class="field">
+                <label>RPC Username <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <input type="text" placeholder="Leave blank to keep current" />
+                </div>
+                <p class="hint">Username and password must be provided together</p>
+              </div>
+
+              <div class="field">
+                <label>RPC Password <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <input type="password" placeholder="Leave blank to keep current" data-pw />
+                  <button class="eye-btn" type="button" aria-label="Show password" data-eye>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
+                <p class="hint">Write-only field · current value never displayed</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ZMQ -->
+          <div class="subsection">
+            <div class="sub-title"><span class="pip blue"></span>ZMQ Configuration</div>
+            <div class="zmq-grid">
+              <div class="field">
+                <label>ZMQ Endpoint <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <input type="text" value="tcp://127.0.0.1:28332" />
+                </div>
+                <p class="hint">Used for both <code>zmqpubrawblock</code> and <code>zmqpubrawtx</code></p>
+              </div>
+
+              <div class="field">
+                <label>bitcoin.conf snippet <span class="right">Read-only</span></label>
+                <pre class="code-block" id="zmqSnippet">zmqpubrawblock=tcp://127.0.0.1:28332
+zmqpubrawtx=tcp://127.0.0.1:28332</pre>
+              </div>
+
+              <div class="span-2">
+                <div class="banner warn">
+                  <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                  <span><strong>Note:</strong> Both <code>zmqpubrawblock</code> and <code>zmqpubrawtx</code> must use the same endpoint.</span>
+                </div>
+              </div>
+
+              <div class="copy-row">
+                <span class="hint">Copy these lines into your <code>bitcoin.conf</code> and restart Bitcoin Core.</span>
+                <button class="btn ghost sm" id="copyZmq">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span class="lbl">Copy ZMQ Config</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tor -->
+          <div class="subsection">
+            <div class="sub-title"><span class="pip purple"></span>Tor Configuration</div>
+            <div class="field-grid cols-3">
+              <div class="field">
+                <label>Tor Auth Password</label>
+                <div class="input-wrap">
+                  <input type="password" placeholder="Leave blank if no auth configured" data-pw />
+                  <button class="eye-btn" type="button" aria-label="Show password" data-eye>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
+                <p class="hint">Required if Tor uses <code>HashedControlPassword</code></p>
+              </div>
+
+              <div class="field">
+                <label>SOCKS Port</label>
+                <div class="input-wrap">
+                  <input type="text" value="9050" />
+                </div>
+                <p class="hint">SOCKS proxy port — default <code>9050</code></p>
+              </div>
+
+              <div class="field">
+                <label>Control Port</label>
+                <div class="input-wrap">
+                  <input type="text" value="9051" />
+                </div>
+                <p class="hint">Tor control interface — default <code>9051</code></p>
+              </div>
+            </div>
+
+            <div class="test-btn-row">
+              <button class="btn primary sm" id="testBtcBtn">
+                <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <span class="lbl">Test Bitcoin</span>
+              </button>
+              <button class="btn primary sm" id="testTorBtn">
+                <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M12 3a9 9 0 0 0 0 18M12 7a5 5 0 0 1 0 10"></path>
+                </svg>
+                <span class="lbl">Test Tor</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───────── Network Ports ───────── -->
+        <section class="card">
+            <div class="card-head">
+              <h2>Network Ports</h2>
+              <span class="head-meta">Unique per maker</span>
+            </div>
+            <div class="card-body">
+              <p class="ports-desc">Each maker must use unique ports to avoid clashes when running multiple makers on the same machine.</p>
+              <div class="field-grid">
+                <div class="field">
+                  <label>Network Port</label>
+                  <div class="input-wrap">
+                    <input type="text" value="6106" />
+                  </div>
+                  <p class="hint">For coinswap client connections (default <code>6102</code>)</p>
+                </div>
+                <div class="field">
+                  <label>RPC Port</label>
+                  <div class="input-wrap">
+                    <input type="text" value="6107" />
+                  </div>
+                  <p class="hint">For maker-cli operations (default <code>6103</code>)</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        <!-- ───────── Row 2: Swap & Fidelity + Fidelity ───────── -->
+        <div class="settings-row">
+
+          <!-- Swap & Fidelity (swap-side fees) -->
+          <section class="card">
+            <div class="card-head">
+              <h2>Swap Settings</h2>
+              <span class="head-meta">Pricing &amp; thresholds</span>
+            </div>
+            <div class="card-body">
+              <div class="field-grid">
+                <div class="field">
+                  <label>Minimum Swap Amount</label>
+                  <div class="input-wrap">
+                    <input type="text" value="10000" />
+                    <span class="unit">SATS</span>
+                  </div>
+                  <p class="hint">Smallest swap this maker will accept</p>
+                </div>
+                <div class="field">
+                  <label>Required Confirmations</label>
+                  <div class="input-wrap">
+                    <input type="text" value="1" />
+                  </div>
+                  <p class="hint">Funding confirmations before progressing a swap</p>
+                </div>
+                <div class="field">
+                  <label>Base Fee</label>
+                  <div class="input-wrap">
+                    <input type="text" value="1000" />
+                    <span class="unit">SATS</span>
+                  </div>
+                  <p class="hint">Flat fee charged per swap</p>
+                </div>
+                <div class="field">
+                  <label>Amount Relative Fee</label>
+                  <div class="input-wrap">
+                    <input type="text" value="0.025" />
+                  </div>
+                  <p class="hint">Decimal 0–1 · <code>0.025</code> = 2.5%</p>
+                </div>
+                <div class="field span-2">
+                  <label>Time Relative Fee</label>
+                  <div class="input-wrap">
+                    <input type="text" value="0.001" />
+                  </div>
+                  <p class="hint">Decimal 0–1 · <code>0.001</code> = 0.1% per block</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Fidelity -->
+          <section class="card">
+            <div class="card-head">
+              <h2>Fidelity Bond</h2>
+              <span class="head-meta">Reputation stake</span>
+            </div>
+            <div class="card-body">
+              <div class="field-grid">
+                <div class="field span-2">
+                  <label>Fidelity Amount</label>
+                  <div class="input-wrap">
+                    <input type="text" value="10000" />
+                    <span class="unit">SATS</span>
+                  </div>
+                  <p class="hint">Locked stake — higher amount → higher trust score</p>
+                </div>
+                <div class="field span-2">
+                  <label>Fidelity Timelock</label>
+                  <div class="input-wrap">
+                    <input type="text" value="15000" />
+                    <span class="unit">BLOCKS</span>
+                  </div>
+                  <p class="hint">Must be between <code>12960</code> and <code>25920</code> blocks (~90&nbsp;d – 180&nbsp;d)</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ───────── Save bar ───────── -->
+        <div class="save-bar">
+          <p class="save-note">
+            Saving stops the maker, writes the new config to <code>config.toml</code>, then restarts it automatically.
+            Password fields are write-only — leave blank to keep the current value.
+          </p>
+          <button class="btn primary sm" id="saveBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            <span class="lbl">Save &amp; Restart Maker</span>
+          </button>
+        </div>
+
+        <!-- ───────── Danger zone ───────── -->
+        <section class="danger" aria-labelledby="dangerHead">
+          <div class="danger-meta">
+            <h2 id="dangerHead">Danger Zone</h2>
+            <p>Remove this maker from the dashboard. Does not affect your funds or on-chain state.</p>
+          </div>
+          <button class="btn danger-ghost sm" id="removeBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+              <path d="M10 11v6M14 11v6"></path>
+              <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span class="lbl">Remove Maker</span>
+          </button>
+        </section>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span class="dot"></span>
+  <span class="msg">Saved</span>
+</div>
+
+<script>
+(function () {
+  // ────────── Toast ──────────
+  const toast = document.getElementById('toast');
+  function showToast(msg, variant) {
+    toast.classList.remove('warn', 'err');
+    if (variant === 'warn') toast.classList.add('warn');
+    if (variant === 'err') toast.classList.add('err');
+    toast.querySelector('.msg').textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+
+  // ────────── Password eye toggles ──────────
+  document.querySelectorAll('[data-eye]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = btn.parentElement.querySelector('[data-pw]');
+      if (!input) return;
+      const isPw = input.type === 'password';
+      input.type = isPw ? 'text' : 'password';
+      btn.setAttribute('aria-label', isPw ? 'Hide password' : 'Show password');
+    });
+  });
+
+  // ────────── Copy ZMQ config ──────────
+  const copyBtn = document.getElementById('copyZmq');
+  copyBtn.addEventListener('click', () => {
+    const text = document.getElementById('zmqSnippet').textContent;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(
+        () => showToast('ZMQ config copied'),
+        () => showToast('Copy failed', 'err')
+      );
+    }
+  });
+
+  // ────────── Test Connection ──────────
+  // ────────── Test Bitcoin / Test Tor probes ──────────
+  function runProbe(btn, okMsg) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.classList.add('spinning');
+    const lbl = btn.querySelector('.lbl');
+    const orig = lbl.textContent;
+    lbl.textContent = 'Testing…';
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.classList.remove('spinning');
+      lbl.textContent = orig;
+      showToast(okMsg);
+    }, 1400);
+  }
+  document.getElementById('testBtcBtn').addEventListener('click', e =>
+    runProbe(e.currentTarget, 'Bitcoin Core reachable'));
+  document.getElementById('testTorBtn').addEventListener('click', e =>
+    runProbe(e.currentTarget, 'Tor control port reachable'));
+
+  // ────────── Save & Restart ──────────
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.addEventListener('click', () => {
+    if (saveBtn.disabled) return;
+    saveBtn.disabled = true;
+    const lbl = saveBtn.querySelector('.lbl');
+    const origText = lbl.textContent;
+    lbl.textContent = 'Saving…';
+    setTimeout(() => {
+      lbl.textContent = 'Restarting maker…';
+      setTimeout(() => {
+        lbl.textContent = origText;
+        saveBtn.disabled = false;
+        showToast('Saved · maker restarted');
+      }, 900);
+    }, 900);
+  });
+
+  // ────────── Remove Maker ──────────
+  const removeBtn = document.getElementById('removeBtn');
+  let confirming = false;
+  let confirmTimer;
+  removeBtn.addEventListener('click', () => {
+    const lbl = removeBtn.querySelector('.lbl');
+    if (!confirming) {
+      confirming = true;
+      lbl.textContent = 'Click again to confirm';
+      confirmTimer = setTimeout(() => {
+        confirming = false;
+        lbl.textContent = 'Remove Maker';
+      }, 3000);
+    } else {
+      clearTimeout(confirmTimer);
+      confirming = false;
+      lbl.textContent = 'Remove Maker';
+      showToast('Maker removed', 'warn');
+    }
+  });
+
+  // ────────── Top header (Sync + Stop + Tor copy) ──────────
+  const syncBtn = document.getElementById('syncBtn');
+  let syncing = false;
+  syncBtn.addEventListener('click', () => {
+    if (syncing) return;
+    syncing = true;
+    syncBtn.classList.add('spinning');
+    syncBtn.querySelector('.lbl').textContent = 'Syncing…';
+    setTimeout(() => {
+      syncing = false;
+      syncBtn.classList.remove('spinning');
+      syncBtn.querySelector('.lbl').textContent = 'Sync Wallet';
+      showToast('Wallet synced');
+    }, 1600);
+  });
+
+  const stopBtn = document.getElementById('stopBtn');
+  const STATUS_KEY = 'coinswap:maker:status';
+  let running = (function () {
+    try { return localStorage.getItem(STATUS_KEY) !== 'stopped'; } catch (e) { return true; }
+  })();
+  function renderStatus() {
+    if (running) {
+      stopBtn.classList.add('danger-ghost');
+      stopBtn.classList.remove('start-ghost');
+      stopBtn.querySelector('.lbl').textContent = 'Stop';
+      stopBtn.querySelector('svg').outerHTML =
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>';
+    } else {
+      stopBtn.classList.remove('danger-ghost');
+      stopBtn.classList.add('start-ghost');
+      stopBtn.querySelector('.lbl').textContent = 'Start';
+      stopBtn.querySelector('svg').outerHTML =
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+    }
+  }
+  stopBtn.addEventListener('click', () => {
+    running = !running;
+    try { localStorage.setItem(STATUS_KEY, running ? 'running' : 'stopped'); } catch (e) {}
+    renderStatus();
+    showToast(running ? 'Maker started' : 'Maker stopped', running ? '' : 'warn');
+  });
+  renderStatus();
+
+  const torAddr = document.getElementById('torAddr');
+  torAddr.addEventListener('click', () => {
+    const full = torAddr.getAttribute('title') || torAddr.textContent;
+    navigator.clipboard && navigator.clipboard.writeText(full).then(
+      () => showToast('Tor address copied'),
+      () => showToast('Copy failed', 'err')
+    );
+  });
+})();
+</script>
+
+</body>
+</html>
